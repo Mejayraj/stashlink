@@ -127,6 +127,31 @@ export function SidebarContent({ onNavigate }: SidebarContentProps) {
                   onStartAddSubtopic={() => setAddingFor(topic.id)}
                   onCommitSubtopic={(name) => commitSubtopic(topic.id, name)}
                   onCancelAddSubtopic={() => setAddingFor(null)}
+                  renderSubtopic={(sub) => (
+                    <TopicRow
+                      key={sub.id}
+                      topic={sub}
+                      subtopics={[]}
+                      count={countFor(sub.id)}
+                      selected={view.kind === "topic" && view.topicId === sub.id}
+                      expanded={false}
+                      renaming={renamingId === sub.id}
+                      menuOpen={menuId === sub.id}
+                      addingSubtopic={false}
+                      onSelect={() => select({ kind: "topic", topicId: sub.id })}
+                      onToggleExpanded={() => {}}
+                      onStartRename={() => setRenamingId(sub.id)}
+                      onCommitRename={(name) => commitRename(sub, name)}
+                      onCancelRename={() => setRenamingId(null)}
+                      onOpenMenu={() => setMenuId(sub.id)}
+                      onCloseMenu={() => setMenuId(null)}
+                      onDelete={() => deleteTopic(sub)}
+                      onStartAddSubtopic={() => {}}
+                      onCommitSubtopic={() => {}}
+                      onCancelAddSubtopic={() => {}}
+                      renderSubtopic={() => null}
+                    />
+                  )}
                 />
               ))}
               {topLevel.length === 0 && <p className="px-3 py-2 text-xs text-ash">No topics yet</p>}
@@ -182,6 +207,7 @@ interface TopicRowProps {
   onStartAddSubtopic: () => void;
   onCommitSubtopic: (name: string) => void;
   onCancelAddSubtopic: () => void;
+  renderSubtopic: (sub: Topic) => ReactNode;
 }
 
 function TopicRow(props: TopicRowProps) {
@@ -257,34 +283,7 @@ function TopicRow(props: TopicRowProps) {
         {menuOpen && !renaming && <TopicMenu onDelete={props.onDelete} onClose={props.onCloseMenu} />}
       </div>
 
-      {expanded && (
-        <div className="ml-5">
-          {subtopics.map((sub) => (
-            <TopicRow
-              key={sub.id}
-              topic={sub}
-              subtopics={[]}
-              count={sub.id ? sublinksCountPlaceholder(sub) : 0}
-              selected={props.selected}
-              expanded={false}
-              renaming={false}
-              menuOpen={false}
-              addingSubtopic={false}
-              onSelect={props.onSelect}
-              onToggleExpanded={() => {}}
-              onStartRename={props.onStartRename}
-              onCommitRename={props.onCommitRename}
-              onCancelRename={props.onCancelRename}
-              onOpenMenu={props.onOpenMenu}
-              onCloseMenu={props.onCloseMenu}
-              onDelete={props.onDelete}
-              onStartAddSubtopic={() => {}}
-              onCommitSubtopic={() => {}}
-              onCancelAddSubtopic={() => {}}
-            />
-          ))}
-        </div>
-      )}
+      {expanded && <div className="ml-5">{subtopics.map((sub) => props.renderSubtopic(sub))}</div>}
       {addingSubtopic && (
         <div className="ml-5">
           <InlineInput
@@ -298,11 +297,6 @@ function TopicRow(props: TopicRowProps) {
       )}
     </div>
   );
-}
-
-// Placeholder removed below; see SidebarContent for real subtopic rendering.
-function sublinksCountPlaceholder(_topic: Topic): number {
-  return 0;
 }
 
 interface NavRowProps {
