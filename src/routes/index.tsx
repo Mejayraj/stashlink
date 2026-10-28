@@ -1,24 +1,35 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, useHydrated } from "@tanstack/react-router";
 
-// No head() here: the home route inherits title/description/og/twitter from
-// __root.tsx, and ships no og:image so serve-time hosting can inject the
-// project's social preview (explicit og:image or latest screenshot).
+import { AppShell, AppSkeleton } from "@/components/AppShell";
+
 export const Route = createFileRoute("/")({
+  head: () => ({
+    meta: [
+      { title: "Stash — save links fast" },
+      {
+        name: "description",
+        content:
+          "A minimal, private place to save links, sorted into topics with a one-line note on why each one matters.",
+      },
+      { property: "og:title", content: "Stash — save links fast" },
+      {
+        property: "og:description",
+        content: "Paste a link, add an optional note, and Stash files it into the right topic.",
+      },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
+      { name: "twitter:title", content: "Stash — save links fast" },
+      {
+        name: "twitter:description",
+        content: "Paste a link, add an optional note, and Stash files it into the right topic.",
+      },
+    ],
+  }),
   component: Index,
 });
 
-// IMPORTANT: Replace this placeholder. See ./README.md for routing conventions.
 function Index() {
-  return (
-    <div
-      className="flex min-h-screen items-center justify-center"
-      style={{ backgroundColor: "#fcfbf8" }}
-    >
-      <img
-        data-lovable-blank-page-placeholder="REMOVE_THIS"
-        src="https://cdn.gpteng.co/blank-app-v1.svg"
-        alt="Your app will live here!"
-      />
-    </div>
-  );
+  // App state lives in localStorage, so only render it on the client.
+  const hydrated = useHydrated();
+  return hydrated ? <AppShell /> : <AppSkeleton />;
 }
