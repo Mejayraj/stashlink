@@ -9,16 +9,18 @@ export const SearchBar = forwardRef<HTMLInputElement>(function SearchBar(_props,
 
   return (
     <div className="relative mx-auto w-full max-w-[480px]">
-      <Search aria-hidden className="pointer-events-none absolute left-4 top-1/2 size-4 -translate-y-1/2 text-ash" />
-      <input
-        ref={ref}
-        value={query}
-        onChange={(e) => setQuery(e.target.value)}
-        placeholder="Search links"
-        aria-label="Search links"
-        autoComplete="off"
-        className="h-11 w-full rounded-full border border-hairline bg-canvas pl-10 pr-10 text-sm text-ink placeholder:text-ash"
-      />
+      <div className="field field-pill relative flex h-11 items-center">
+        <Search aria-hidden className="pointer-events-none absolute left-4 size-4 text-ash" />
+        <input
+          ref={ref}
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          placeholder="Search links"
+          aria-label="Search links"
+          autoComplete="off"
+          className="field-input h-full w-full pl-10 pr-10 text-sm text-ink placeholder:text-ash"
+        />
+      </div>
       {query && (
         <button
           type="button"

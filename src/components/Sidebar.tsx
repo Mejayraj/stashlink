@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState, type ReactNode } from "react";
+import { Link } from "@tanstack/react-router";
 import {
   ChevronDown,
   ChevronRight,
@@ -9,11 +10,14 @@ import {
 } from "lucide-react";
 
 import { APP_NAME } from "@/lib/constants";
+import { useAuthStore } from "@/lib/auth-store";
 import { repo } from "@/lib/repo";
 import { useDataStore } from "@/lib/store";
 import type { Topic, ViewSelection } from "@/lib/types";
 import { useUIStore } from "@/lib/ui-store";
 import { cn } from "@/lib/utils";
+
+import { ThemeToggle } from "./ThemeToggle";
 
 interface SidebarContentProps {
   onNavigate?: () => void;
@@ -22,6 +26,7 @@ interface SidebarContentProps {
 export function SidebarContent({ onNavigate }: SidebarContentProps) {
   const topics = useDataStore((s) => s.topics);
   const links = useDataStore((s) => s.links);
+  const email = useAuthStore((s) => s.email);
   const view = useUIStore((s) => s.view);
   const setView = useUIStore((s) => s.setView);
 
@@ -182,6 +187,21 @@ export function SidebarContent({ onNavigate }: SidebarContentProps) {
             New topic
           </button>
         )}
+
+        <div className="mt-1 flex items-center gap-1 rounded-2xl p-1 hover:bg-surface-card/70">
+          <Link
+            to="/account"
+            aria-label="Account settings"
+            className="flex min-w-0 flex-1 items-center gap-2 rounded-2xl p-1"
+            onClick={onNavigate}
+          >
+            <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-surface-card text-sm font-semibold text-body">
+              {(email?.charAt(0) ?? "?").toUpperCase()}
+            </span>
+            <span className="min-w-0 flex-1 truncate text-xs text-mute">{email ?? ""}</span>
+          </Link>
+          <ThemeToggle />
+        </div>
       </div>
     </div>
   );
@@ -264,7 +284,7 @@ function TopicRow(props: TopicRowProps) {
                   type="button"
                   onClick={props.onStartAddSubtopic}
                   aria-label={`Add subtopic to ${topic.name}`}
-                  className="flex size-6 items-center justify-center rounded-full bg-canvas text-ash hover:text-ink"
+                  className="flex size-6 items-center justify-center rounded-full bg-sidebar text-ash hover:text-ink"
                 >
                   <Plus aria-hidden className="size-3.5" />
                 </button>
@@ -273,7 +293,7 @@ function TopicRow(props: TopicRowProps) {
                 type="button"
                 onClick={props.onOpenMenu}
                 aria-label={`Options for ${topic.name}`}
-                className="flex size-6 items-center justify-center rounded-full bg-canvas text-ash hover:text-ink"
+                className="flex size-6 items-center justify-center rounded-full bg-sidebar text-ash hover:text-ink"
               >
                 <MoreHorizontal aria-hidden className="size-3.5" />
               </button>
@@ -390,24 +410,26 @@ function InlineInput({ defaultValue, placeholder, ariaLabel, onCommit, onCancel 
   };
 
   return (
-    <input
-      autoFocus
-      value={value}
-      maxLength={40}
-      onChange={(e) => setValue(e.target.value)}
-      onBlur={commit}
-      onKeyDown={(e) => {
-        if (e.key === "Enter") {
-          e.preventDefault();
-          commit();
-        } else if (e.key === "Escape") {
-          e.preventDefault();
-          cancel();
-        }
-      }}
-      placeholder={placeholder}
-      aria-label={ariaLabel}
-      className="h-9 w-full rounded-2xl border border-hairline bg-canvas px-3 text-sm font-medium text-ink placeholder:text-ash"
-    />
+    <div className="field flex h-9 items-center px-3">
+      <input
+        autoFocus
+        value={value}
+        maxLength={40}
+        onChange={(e) => setValue(e.target.value)}
+        onBlur={commit}
+        onKeyDown={(e) => {
+          if (e.key === "Enter") {
+            e.preventDefault();
+            commit();
+          } else if (e.key === "Escape") {
+            e.preventDefault();
+            cancel();
+          }
+        }}
+        placeholder={placeholder}
+        aria-label={ariaLabel}
+        className="field-input h-full w-full text-sm font-medium text-ink placeholder:text-ash"
+      />
+    </div>
   );
 }

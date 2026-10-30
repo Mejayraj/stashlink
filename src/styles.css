@@ -1,12 +1,14 @@
 @import "tailwindcss" source(none);
 @source "../src";
 
+@custom-variant dark (&:is(.dark *));
+
 /*
  * Stash design system.
  *
- * Colors live in :root and are mapped to Tailwind utilities in the
- * @theme inline block (e.g. --color-ink -> text-ink). The single accent
- * is one variable so it can be swapped later.
+ * Colors live in :root (light) and .dark (dark), mapped to Tailwind
+ * utilities in the @theme inline block (e.g. --color-ink -> text-ink).
+ * Components use semantic classes only — never a hardcoded hex.
  */
 
 @theme {
@@ -15,6 +17,7 @@
 
 @theme inline {
   --color-canvas: var(--canvas);
+  --color-sidebar: var(--sidebar);
   --color-surface-soft: var(--surface-soft);
   --color-surface-card: var(--surface-card);
   --color-secondary: var(--secondary);
@@ -25,10 +28,14 @@
   --color-ash: var(--ash);
   --color-accent: var(--accent);
   --color-accent-pressed: var(--accent-pressed);
+  --color-on-accent: var(--on-accent);
+  --color-error: var(--error);
+  --color-scrim: var(--scrim);
 }
 
 :root {
   --canvas: #ffffff;
+  --sidebar: #ffffff;
   --surface-soft: #fbfbf9;
   --surface-card: #f6f6f3;
   --secondary: #e5e5e0;
@@ -39,7 +46,29 @@
   --ash: #91918c;
   --accent: #1e6b4f;
   --accent-pressed: #175640;
+  --on-accent: #ffffff;
+  --error: #b3261e;
+  --scrim: rgba(0, 0, 0, 0.2);
   --image-outline: rgba(0, 0, 0, 0.08);
+}
+
+.dark {
+  --canvas: #1a1a17;
+  --sidebar: #20201d;
+  --surface-soft: #1a1a17;
+  --surface-card: #262622;
+  --secondary: #33332e;
+  --hairline: #3a3a35;
+  --ink: #f6f6f3;
+  --body: #d8d8d1;
+  --mute: #a3a39c;
+  --ash: #77776f;
+  --accent: #4caf86;
+  --accent-pressed: #3d9a73;
+  --on-accent: #0f1f18;
+  --error: #ff8a80;
+  --scrim: rgba(0, 0, 0, 0.5);
+  --image-outline: rgba(255, 255, 255, 0.1);
 }
 
 /* Applies to any text 28px or larger. */
@@ -69,6 +98,40 @@
   :where(a, button, input, textarea, select, summary, [role="button"], [tabindex]):focus-visible {
     outline: 2px solid var(--ink);
     box-shadow: 0 0 0 3px var(--accent);
+  }
+}
+
+/*
+ * Field pattern: a bordered container carries the focus ring via
+ * :focus-within (2px ink + 5px accent outside the container), and the inputs
+ * inside it are bare — no border, background, outline, or ring of their own.
+ * The container never clips: no overflow hidden on it or any ancestor up to
+ * the scroll area.
+ */
+@layer components {
+  .field {
+    background-color: var(--surface-card);
+    border: 1px solid var(--hairline);
+    border-radius: 16px;
+  }
+
+  .field-pill {
+    border-radius: 9999px;
+  }
+
+  .field:focus-within {
+    outline: none;
+    box-shadow: 0 0 0 2px var(--ink), 0 0 0 5px var(--accent);
+  }
+
+  .field-input {
+    border: 0;
+    background: transparent;
+  }
+
+  .field-input:focus-visible {
+    outline: none;
+    box-shadow: none;
   }
 }
 
