@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef } from "react";
+import { useEffect, useMemo, useRef, type ReactNode } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { Menu } from "lucide-react";
 
@@ -13,16 +13,72 @@ import { SearchBar } from "./SearchBar";
 import { SidebarContent } from "./Sidebar";
 import { ToastHost } from "./ToastHost";
 
-export function AppShell() {
+// Shared frame: sidebar, mobile drawer, toasts, and the move popover. The
+// main area is a slot so home and account render inside the same shell.
+export function AppFrame({ children }: { children: ReactNode }) {
+  const drawerOpen = useUIStore((s) => s.drawerOpen);
+  const setDrawerOpen = useUIStore((s) => s.setDrawerOpen);
+  const reduce = useReducedMotion();
+
+  return (
+    <div className="flex h-dvh overflow-hidden bg-surface-soft">
+      <aside className="hidden w-60 shrink-0 border-r border-hairline bg-sidebar md:block">
+        <SidebarContent />
+      </aside>
+
+      <AnimatePresence>
+        {drawerOpen && (
+          <>
+            <motion.div
+              key="drawer-overlay"
+              className="fixed inset-0 z-40 bg-scrim md:hidden"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: reduce ? 0 : 0.12, ease: "easeOut" }}
+              onClick={() => setDrawerOpen(false)}
+            />
+            <motion.aside
+              key="drawer"
+              className="fixed inset-y-0 left-0 z-50 w-60 border-r border-hairline bg-sidebar md:hidden"
+              initial={{ x: reduce ? 0 : -260 }}
+              animate={{ x: 0 }}
+              exit={{ x: reduce ? 0 : -260 }}
+              transition={{ duration: reduce ? 0 : 0.12, ease: "easeOut" }}
+            >
+              <SidebarContent onNavigate={() => setDrawerOpen(false)} />
+            </motion.aside>
+          </>
+        )}
+      </AnimatePresence>
+
+      <main className="flex min-w-0 flex-1 flex-col overflow-y-auto px-1 py-1">
+        <div className="flex items-center gap-3 px-3 pt-3 md:hidden">
+          <button
+            type="button"
+            onClick={() => setDrawerOpen(true)}
+            aria-label="Open menu"
+            className="flex size-10 items-center justify-center rounded-2xl border border-hairline bg-canvas text-body"
+          >
+            <Menu aria-hidden className="size-4" />
+          </button>
+          <span className="text-lg font-bold tracking-tight text-ink">{APP_NAME}</span>
+        </div>
+        {children}
+      </main>
+
+      <ToastHost />
+      <MovePopoverHost />
+    </div>
+  );
+}
+
+export function HomeView() {
   const links = useDataStore((s) => s.links);
   const topics = useDataStore((s) => s.topics);
   const view = useUIStore((s) => s.view);
   const query = useUIStore((s) => s.query);
-  const drawerOpen = useUIStore((s) => s.drawerOpen);
-  const setDrawerOpen = useUIStore((s) => s.setDrawerOpen);
-
   const searchRef = useRef<HTMLInputElement>(null);
-  const reduce = useReducedMotion();
 
   // "/" or Cmd/Ctrl+K focuses search.
   useEffect(() => {
@@ -79,72 +135,12 @@ export function AppShell() {
   }, [query, view, topics, links]);
 
   return (
-    <div className="flex h-dvh overflow-hidden bg-surface-soft">
-      <aside className="hidden w-60 shrink-0 border-r border-hairline bg-canvas md:block">
-        <SidebarContent />
-      </aside>
-
-      <AnimatePresence>
-        {drawerOpen && (
-          <>
-            <motion.div
-              key="drawer-overlay"
-              className="fixed inset-0 z-40 bg-ink/20 md:hidden"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: reduce ? 0 : 0.12, ease: "easeOut" }}
-              onClick={() => setDrawerOpen(false)}
-            />
-            <motion.aside
-              key="drawer"
-              className="fixed inset-y-0 left-0 z-50 w-60 border-r border-hairline bg-canvas md:hidden"
-              initial={{ x: reduce ? 0 : -260 }}
-              animate={{ x: 0 }}
-              exit={{ x: reduce ? 0 : -260 }}
-              transition={{ duration: reduce ? 0 : 0.12, ease: "easeOut" }}
-            >
-              <SidebarContent onNavigate={() => setDrawerOpen(false)} />
-            </motion.aside>
-          </>
-        )}
-      </AnimatePresence>
-
-      <main className="flex min-w-0 flex-1 flex-col overflow-y-auto">
-        <div className="flex items-center gap-3 px-4 pt-4 md:hidden">
-          <button
-            type="button"
-            onClick={() => setDrawerOpen(true)}
-            aria-label="Open menu"
-            className="flex size-10 items-center justify-center rounded-2xl border border-hairline bg-canvas text-body"
-          >
-            <Menu aria-hidden className="size-4" />
-          </button>
-          <span className="text-lg font-bold tracking-tight text-ink">{APP_NAME}</span>
-        </div>
-
-        <div className="mx-auto w-full max-w-[1080px] px-4 pt-6 md:px-6 md:pt-10">
-          <SearchBar ref={searchRef} />
-          <AddBar />
-        </div>
-
-        <div className="mx-auto w-full max-w-[1080px] px-4 pb-16 pt-6 md:px-6">
-          <LinkGrid links={filtered} empty={empty} />
-        </div>
-      </main>
-
-      <ToastHost />
-      <MovePopoverHost />
-    </div>
-  );
-}
-
-// Rendered during SSR and before hydration: the app state lives in
-// localStorage, which only exists on the client.
-export function AppSkeleton() {
-  return (
-    <div className="flex h-dvh overflow-hidden bg-surface-soft">
-      <div className="hidden w-60 shrink-0 border-r border-hairline bg-canvas md:block" />
+    <div className="mx-auto w-full max-w-[1080px] px-3 pb-16 pt-6 md:px-5 md:pt-10">
+      <SearchBar ref={searchRef} />
+      <AddBar />
+      <div className="pt-6">
+        <LinkGrid links={filtered} empty={empty} />
+      </div>
     </div>
   );
 }
