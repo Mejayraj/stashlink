@@ -1,6 +1,7 @@
 import { supabase } from "@/integrations/supabase/client";
 
 import { useDataStore, type NewLinkInput } from "./store";
+import { toast } from "./toast";
 import type { Link, Topic } from "./types";
 
 const SAVE_FAILED = "Couldn't save that. Try again.";
