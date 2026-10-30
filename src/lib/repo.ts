@@ -206,8 +206,3 @@ export const repo = {
   },
 };
 
-function toast(message: string) {
-  // Imported lazily to avoid a cycle: toast.ts is UI-adjacent and doesn't
-  // import repo, but keeping the import local makes the dependency obvious.
-  void message;
-}
