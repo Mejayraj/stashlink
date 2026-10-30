@@ -43,7 +43,7 @@ export function MovePopoverHost() {
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           transition={{ duration: reduce ? 0 : 0.12, ease: "easeOut" }}
-          className="fixed inset-0 z-[70] flex items-start justify-center bg-ink/20 p-4 pt-24"
+          className="fixed inset-0 z-[70] flex items-start justify-center bg-scrim p-4 pt-24"
           onClick={close}
         >
           <motion.div
