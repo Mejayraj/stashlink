@@ -1,10 +1,18 @@
 import { describe, expect, it } from "vitest";
 
 import { autoFile } from "@/lib/autofile";
-import { getSeed } from "@/lib/seed";
 import { parsePastedLink } from "@/lib/url";
+import type { Topic } from "@/lib/types";
 
-const topics = getSeed().topics;
+// Same fixtures the Phase 1 seed used, kept inline now that mock data is gone
+// from the app itself.
+const topics: Topic[] = [
+  { id: "t-design", name: "Design", parentId: null, createdAt: 1769000000000 },
+  { id: "t-inspiration", name: "Inspiration", parentId: "t-design", createdAt: 1768999999000 },
+  { id: "t-tools", name: "Tools", parentId: "t-design", createdAt: 1768999998000 },
+  { id: "t-running", name: "Running", parentId: null, createdAt: 1768999997000 },
+  { id: "t-study", name: "Study abroad", parentId: null, createdAt: 1768999996000 },
+];
 
 describe("autoFile", () => {
   it("files running links into Running", () => {
