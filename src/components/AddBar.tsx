@@ -88,6 +88,13 @@ export function AddBar() {
                 setValue(e.target.value);
                 if (error) setError(null);
               }}
+              onKeyDown={(e) => {
+                // Enter must show the hint even while Save is disabled.
+                if (e.key === "Enter") {
+                  e.preventDefault();
+                  trySave();
+                }
+              }}
               placeholder="Paste a link"
               aria-label="Paste a link"
               autoComplete="off"
