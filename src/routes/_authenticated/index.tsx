@@ -1,8 +1,8 @@
-import { createFileRoute, useHydrated } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 
-import { AppShell, AppSkeleton } from "@/components/AppShell";
+import { AppFrame, HomeView } from "@/components/AppShell";
 
-export const Route = createFileRoute("/")({
+export const Route = createFileRoute("/_authenticated/")({
   head: () => ({
     meta: [
       { title: "Stash — save links fast" },
@@ -29,7 +29,9 @@ export const Route = createFileRoute("/")({
 });
 
 function Index() {
-  // App state lives in localStorage, so only render it on the client.
-  const hydrated = useHydrated();
-  return hydrated ? <AppShell /> : <AppSkeleton />;
+  return (
+    <AppFrame>
+      <HomeView />
+    </AppFrame>
+  );
 }
