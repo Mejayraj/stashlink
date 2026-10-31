@@ -3,12 +3,11 @@ import { Link, createFileRoute, useNavigate } from "@tanstack/react-router";
 
 import { supabase } from "@/integrations/supabase/client";
 import { AppFrame } from "@/components/AppShell";
+import { ThemeToggle } from "@/components/ThemeToggle";
 import { useAuthStore } from "@/lib/auth-store";
 import { passwordError } from "@/lib/password";
-import { repo } from "@/lib/repo";
+import { useDataStore } from "@/lib/store";
 import { toast } from "@/lib/toast";
-
-import { ThemeToggle } from "@/components/ThemeToggle";
 
 export const Route = createFileRoute("/_authenticated/account")({
   head: () => ({
@@ -65,8 +64,6 @@ function AccountPage() {
 
   const logOut = async () => {
     // Clear the cache first so the next user never sees this account's data.
-    repo; // keep the import used via store clear below
-    const { useDataStore } = await import("@/lib/store");
     useDataStore.getState().clear();
     await supabase.auth.signOut();
     void navigate({ to: "/auth", replace: true });
