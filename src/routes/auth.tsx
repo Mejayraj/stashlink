@@ -36,6 +36,9 @@ function describeAuthError(error: string): string {
   const message = error.toLowerCase();
   if (message.includes("invalid login credentials")) return "That email or password isn't right.";
   if (message.includes("already registered")) return "That email already has an account. Try logging in.";
+  if (message.includes("weak") || message.includes("easy to guess")) {
+    return "That password is too common. Pick a harder one.";
+  }
   if (message.includes("rate limit") || message.includes("too many")) {
     return "Too many attempts. Try again in a moment.";
   }
