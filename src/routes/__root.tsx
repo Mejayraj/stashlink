@@ -122,7 +122,8 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
 
 function RootShell({ children }: { children: ReactNode }) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
+
       <head>
         {/* Applies the saved theme class before first paint, so there is no flash. */}
         <script
