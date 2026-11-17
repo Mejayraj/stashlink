@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, type ReactNode } from "react";
+import { useEffect, useMemo, useRef, useState, type FocusEvent, type ReactNode } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { Menu } from "lucide-react";
 
@@ -19,11 +19,80 @@ export function AppFrame({ children }: { children: ReactNode }) {
   const drawerOpen = useUIStore((s) => s.drawerOpen);
   const setDrawerOpen = useUIStore((s) => s.setDrawerOpen);
   const reduce = useReducedMotion();
+  const [desktopPinned, setDesktopPinned] = useState<boolean | null>(null);
+  const [desktopPeek, setDesktopPeek] = useState(false);
+  const desktopSidebarRef = useRef<HTMLElement>(null);
+  const peekTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    const syncSidebar = () => {
+      let saved: string | null = null;
+      try {
+        saved = window.localStorage.getItem("stash-sidebar-pinned");
+      } catch {
+        // Use the responsive default when browser storage is unavailable.
+      }
+      setDesktopPinned(saved === null ? window.innerWidth >= 1024 : saved === "true");
+      setDesktopPeek(false);
+    };
+    syncSidebar();
+    window.addEventListener("resize", syncSidebar);
+    return () => window.removeEventListener("resize", syncSidebar);
+  }, []);
+
+  const toggleDesktopSidebar = () => {
+    const next = desktopPinned !== true;
+    setDesktopPinned(next);
+    setDesktopPeek(false);
+    try {
+      window.localStorage.setItem("stash-sidebar-pinned", String(next));
+    } catch {
+      // The choice lasts for this visit when browser storage is unavailable.
+    }
+  };
+
+  const openPeek = () => {
+    if (peekTimer.current) clearTimeout(peekTimer.current);
+    setDesktopPeek(true);
+  };
+
+  const closePeek = () => {
+    setDesktopPeek(false);
+    if (peekTimer.current) clearTimeout(peekTimer.current);
+  };
+
+  const onDesktopPointerLeave = () => {
+    if (desktopPinned) return;
+    if (peekTimer.current) clearTimeout(peekTimer.current);
+    peekTimer.current = setTimeout(() => {
+      if (!desktopSidebarRef.current?.contains(document.activeElement)) setDesktopPeek(false);
+    }, 150);
+  };
+
+  const onDesktopBlur = (event: FocusEvent<HTMLElement>) => {
+    if (!desktopPinned && !event.currentTarget.contains(event.relatedTarget as Node | null)) closePeek();
+  };
 
   return (
     <div className="flex h-dvh overflow-hidden bg-surface-soft">
-      <aside className="hidden w-60 shrink-0 border-r border-hairline bg-sidebar md:block">
-        <SidebarContent />
+      <aside
+        ref={desktopSidebarRef}
+        onPointerEnter={openPeek}
+        onPointerLeave={onDesktopPointerLeave}
+        onFocusCapture={openPeek}
+        onBlurCapture={onDesktopBlur}
+        className={`hidden shrink-0 border-r border-hairline bg-sidebar transition-[width] duration-[160ms] ease-out motion-reduce:transition-none md:block ${
+          desktopPinned === true ? "w-60" : desktopPinned === false ? "w-14" : "w-14 lg:w-60"
+        } ${desktopPeek && !desktopPinned ? "z-50" : "relative"}`}
+      >
+        <div className={desktopPeek && !desktopPinned ? "sidebar-peek" : "h-full"}>
+          <SidebarContent
+            desktopMode={desktopPinned ? "pinned" : desktopPeek ? "peek" : "rail"}
+            onDesktopToggle={toggleDesktopSidebar}
+            onRequestPeek={openPeek}
+            onNavigate={closePeek}
+          />
+        </div>
       </aside>
 
       <AnimatePresence>
