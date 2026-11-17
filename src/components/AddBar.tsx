@@ -119,7 +119,7 @@ export function AddBar() {
           <button
             type="submit"
             disabled={!valid || saving}
-            className="h-10 shrink-0 rounded-2xl bg-accent px-4 text-sm font-bold text-on-accent hover:bg-accent-pressed disabled:cursor-not-allowed disabled:opacity-50"
+            className="btn-glass h-10 shrink-0 rounded-2xl px-4 text-sm font-bold text-ink disabled:cursor-not-allowed"
           >
             Save
           </button>
