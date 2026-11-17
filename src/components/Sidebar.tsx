@@ -3,9 +3,12 @@ import { Link } from "@tanstack/react-router";
 import {
   ChevronDown,
   ChevronRight,
+  Folder,
   Inbox,
   LayoutGrid,
   MoreHorizontal,
+  PanelLeftClose,
+  PanelLeftOpen,
   Plus,
 } from "lucide-react";
 
@@ -21,9 +24,12 @@ import { ThemeToggle } from "./ThemeToggle";
 
 interface SidebarContentProps {
   onNavigate?: () => void;
+  desktopMode?: "pinned" | "rail" | "peek";
+  onDesktopToggle?: () => void;
+  onRequestPeek?: () => void;
 }
 
-export function SidebarContent({ onNavigate }: SidebarContentProps) {
+export function SidebarContent({ onNavigate, desktopMode, onDesktopToggle, onRequestPeek }: SidebarContentProps) {
   const topics = useDataStore((s) => s.topics);
   const links = useDataStore((s) => s.links);
   const email = useAuthStore((s) => s.email);
@@ -75,10 +81,37 @@ export function SidebarContent({ onNavigate }: SidebarContentProps) {
     if (view.kind === "topic" && doomed.has(view.topicId)) setView({ kind: "everything" });
   };
 
+  if (desktopMode === "rail") {
+    return (
+      <div className="flex h-full flex-col items-center">
+        <div className="flex h-14 w-full items-center justify-center border-b border-hairline">
+          <button type="button" onClick={onDesktopToggle} aria-label="Pin sidebar open" title="Pin sidebar open" className="flex size-10 items-center justify-center rounded-full text-mute hover:bg-surface-card hover:text-ink">
+            <PanelLeftOpen aria-hidden className="size-4" />
+          </button>
+        </div>
+        <nav aria-label="Library" className="flex w-full flex-col items-center gap-1 px-2 py-3">
+          <RailRow selected={view.kind === "everything"} label="Everything" icon={<LayoutGrid aria-hidden className="size-4 text-mute" />} onClick={() => select({ kind: "everything" })} />
+          <RailRow selected={view.kind === "unsorted"} label="Unsorted" icon={<Inbox aria-hidden className="size-4 text-mute" />} onClick={() => select({ kind: "unsorted" })} />
+          <RailRow selected={view.kind === "topic"} label="Topics" icon={<Folder aria-hidden className="size-4 text-mute" />} onClick={() => { setTopicsOpen(true); onRequestPeek?.(); }} />
+        </nav>
+        <div className="mt-auto flex w-full flex-col items-center gap-1 border-t border-hairline p-2">
+          <button type="button" onClick={() => { setAddingFor("root"); onRequestPeek?.(); }} aria-label="New topic" title="New topic" className="flex size-10 items-center justify-center rounded-full text-mute hover:bg-surface-card hover:text-ink">
+            <Plus aria-hidden className="size-4" />
+          </button>
+          <ThemeToggle />
+          <Link to="/account" aria-label="Account settings" title="Account settings" className="flex size-10 items-center justify-center rounded-full text-sm font-semibold text-body hover:bg-surface-card" onClick={onNavigate}>
+            {(email?.charAt(0) ?? "?").toUpperCase()}
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="flex h-full flex-col">
-      <div className="px-4 pb-2 pt-5">
-        <span className="text-lg font-bold tracking-tight text-ink">{APP_NAME}</span>
+      <div className={cn("flex items-center pb-2", desktopMode ? "h-14 px-2" : "px-4 pt-5")}>
+        {desktopMode && <button type="button" onClick={onDesktopToggle} aria-label={desktopMode === "pinned" ? "Collapse sidebar" : "Pin sidebar open"} title={desktopMode === "pinned" ? "Collapse sidebar" : "Pin sidebar open"} className="flex size-10 shrink-0 items-center justify-center rounded-full text-mute hover:bg-surface-card hover:text-ink">{desktopMode === "pinned" ? <PanelLeftClose aria-hidden className="size-4" /> : <PanelLeftOpen aria-hidden className="size-4" />}</button>}
+        <span className={cn("text-lg font-bold tracking-tight text-ink", desktopMode && "sidebar-label ml-2")}>{APP_NAME}</span>
       </div>
 
       <nav aria-label="Library" className="flex-1 overflow-y-auto px-2 pb-4">
@@ -88,6 +121,7 @@ export function SidebarContent({ onNavigate }: SidebarContentProps) {
           icon={<LayoutGrid aria-hidden className="size-4 text-mute" />}
           label="Everything"
           count={links.length}
+          animateLabel={!!desktopMode}
         />
         <NavRow
           selected={view.kind === "unsorted"}
@@ -95,6 +129,7 @@ export function SidebarContent({ onNavigate }: SidebarContentProps) {
           icon={<Inbox aria-hidden className="size-4 text-mute" />}
           label="Unsorted"
           count={unsortedCount}
+          animateLabel={!!desktopMode}
         />
 
         <div className="mt-4">
@@ -102,7 +137,7 @@ export function SidebarContent({ onNavigate }: SidebarContentProps) {
             type="button"
             onClick={() => setTopicsOpen((o) => !o)}
             aria-expanded={topicsOpen}
-            className="flex h-8 w-full items-center gap-1 rounded-2xl px-2 text-xs font-semibold text-mute hover:text-ink"
+            className={cn("flex h-8 w-full items-center gap-1 rounded-2xl px-2 text-xs font-semibold text-mute hover:text-ink", desktopMode && "sidebar-label")}
           >
             <ChevronDown aria-hidden className={cn("size-3.5 transition-transform", !topicsOpen && "-rotate-90")} />
             Topics
@@ -155,6 +190,7 @@ export function SidebarContent({ onNavigate }: SidebarContentProps) {
                       onCommitSubtopic={() => {}}
                       onCancelAddSubtopic={() => {}}
                       renderSubtopic={() => null}
+                      animateLabel={!!desktopMode}
                     />
                   )}
                 />
@@ -181,7 +217,7 @@ export function SidebarContent({ onNavigate }: SidebarContentProps) {
           <button
             type="button"
             onClick={() => setAddingFor("root")}
-            className="flex h-10 w-full items-center gap-2 rounded-2xl px-3 text-sm font-semibold text-mute hover:bg-surface-card hover:text-ink"
+            className={cn("flex h-10 w-full items-center gap-2 rounded-2xl px-3 text-sm font-semibold text-mute hover:bg-surface-card hover:text-ink", desktopMode && "sidebar-label")}
           >
             <Plus aria-hidden className="size-4" />
             New topic
@@ -198,7 +234,7 @@ export function SidebarContent({ onNavigate }: SidebarContentProps) {
             <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-surface-card text-sm font-semibold text-body">
               {(email?.charAt(0) ?? "?").toUpperCase()}
             </span>
-            <span className="min-w-0 flex-1 truncate text-xs text-mute">{email ?? ""}</span>
+            <span className={cn("min-w-0 flex-1 truncate text-xs text-mute", desktopMode && "sidebar-label")}>{email ?? ""}</span>
           </Link>
           <ThemeToggle />
         </div>
@@ -228,6 +264,7 @@ interface TopicRowProps {
   onCommitSubtopic: (name: string) => void;
   onCancelAddSubtopic: () => void;
   renderSubtopic: (sub: Topic) => ReactNode;
+  animateLabel?: boolean;
 }
 
 function TopicRow(props: TopicRowProps) {
@@ -273,7 +310,7 @@ function TopicRow(props: TopicRowProps) {
               onClick={props.onSelect}
               onDoubleClick={props.onStartRename}
               title={topic.name}
-              className="min-w-0 flex-1 truncate px-1 text-left text-sm text-body"
+              className={cn("min-w-0 flex-1 truncate px-1 text-left text-sm text-body", props.animateLabel && "sidebar-label")}
             >
               {topic.name}
             </button>
@@ -325,9 +362,10 @@ interface NavRowProps {
   icon: ReactNode;
   label: string;
   count: number;
+  animateLabel?: boolean;
 }
 
-function NavRow({ selected, onClick, icon, label, count }: NavRowProps) {
+function NavRow({ selected, onClick, icon, label, count, animateLabel }: NavRowProps) {
   return (
     <button
       type="button"
@@ -342,8 +380,17 @@ function NavRow({ selected, onClick, icon, label, count }: NavRowProps) {
         <span aria-hidden className="absolute left-0 top-1/2 h-4 w-0.5 -translate-y-1/2 rounded-full bg-accent" />
       )}
       {icon}
-      <span className="flex-1 truncate text-left">{label}</span>
-      <span className="text-xs tabular-nums text-ash">{count}</span>
+      <span className={cn("flex-1 truncate text-left", animateLabel && "sidebar-label")}>{label}</span>
+      <span className={cn("text-xs tabular-nums text-ash", animateLabel && "sidebar-label")}>{count}</span>
+    </button>
+  );
+}
+
+function RailRow({ selected, label, icon, onClick }: { selected: boolean; label: string; icon: ReactNode; onClick: () => void }) {
+  return (
+    <button type="button" onClick={onClick} aria-label={label} title={label} aria-current={selected ? "page" : undefined} className={cn("relative flex size-10 items-center justify-center rounded-full", selected ? "bg-surface-card text-ink" : "text-body hover:bg-surface-card/70")}>
+      {selected && <span aria-hidden className="absolute left-0 top-1/2 h-4 w-0.5 -translate-y-1/2 rounded-full bg-accent" />}
+      {icon}
     </button>
   );
 }
