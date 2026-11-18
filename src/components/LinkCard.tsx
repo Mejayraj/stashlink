@@ -13,11 +13,12 @@ const hoverButtonClass =
 export function LinkCard({ link }: { link: Link }) {
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState("");
-  const [imgFailed, setImgFailed] = useState(false);
   const [favFailed, setFavFailed] = useState(false);
 
-  const primary = link.note || link.title;
   const initial = (link.domain.replace(/^www\./, "").charAt(0) || "?").toUpperCase();
+  const escapedDomain = link.domain.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  const displayTitle = link.title.replace(new RegExp(`^\\s*${escapedDomain}\\s+(?:—|-|\\|)\\s*`, "i"), "") || link.title;
+  const imageUrl = link.imageUrl && !link.imageUrl.includes("picsum.photos") ? link.imageUrl : null;
 
   const startEdit = () => {
     setDraft(link.note);
@@ -54,27 +55,20 @@ export function LinkCard({ link }: { link: Link }) {
         />
       )}
 
-      <div className="pointer-events-none relative z-[1]">
-        {link.imageUrl && !imgFailed ? (
+      {imageUrl && (
+        <div className="pointer-events-none relative z-[1]">
           <div className="overflow-hidden rounded-lg [box-shadow:inset_0_0_0_1px_var(--image-outline)]">
             <img
-              src={link.imageUrl}
+              src={imageUrl}
               alt=""
               loading="lazy"
-              onError={() => setImgFailed(true)}
               className="block w-full bg-secondary"
             />
           </div>
-        ) : (
-          <div className="flex aspect-[4/3] w-full items-center justify-center rounded-lg bg-secondary [box-shadow:inset_0_0_0_1px_var(--image-outline)]">
-            <span aria-hidden className="text-2xl font-semibold text-mute">
-              {initial}
-            </span>
-          </div>
-        )}
-      </div>
+        </div>
+      )}
 
-      <div className="pointer-events-none relative z-[1] px-1 pb-1 pt-2">
+      <div className="pointer-events-none relative z-[1] px-2 pb-1 pt-2">
         {editing ? (
           <input
             autoFocus
@@ -93,19 +87,23 @@ export function LinkCard({ link }: { link: Link }) {
             }}
             aria-label="Edit note"
             placeholder="Add a note"
-            className="pointer-events-auto relative z-20 w-full rounded-lg border border-hairline bg-canvas px-2 py-1.5 text-sm font-semibold text-ink"
+            className="pointer-events-auto relative z-20 w-full rounded-lg border border-hairline bg-canvas px-2 py-1.5 text-sm font-medium text-ink"
           />
         ) : (
           <>
-            <p className="truncate text-sm font-semibold text-ink">{primary}</p>
-            {link.note && <p className="mt-0.5 truncate text-[13px] text-mute">{link.title}</p>}
+            {link.note ? (
+              <p className="break-words border-l-2 border-accent pl-2 text-sm font-medium text-ink">{link.note}</p>
+            ) : (
+              <p className="truncate text-sm font-medium text-ink">{displayTitle}</p>
+            )}
+            {link.note && <p className="mt-1 truncate text-[13px] text-body">{displayTitle}</p>}
           </>
         )}
         <div className="mt-1.5 flex items-center gap-1.5">
           {favFailed ? (
             <span
               aria-hidden
-              className="flex size-3.5 items-center justify-center rounded-[4px] bg-secondary text-[9px] font-semibold text-mute [box-shadow:inset_0_0_0_1px_var(--image-outline)]"
+              className="flex size-3.5 items-center justify-center rounded-[4px] bg-secondary text-[9px] font-medium text-mute [box-shadow:inset_0_0_0_1px_var(--image-outline)]"
             >
               {initial}
             </span>
@@ -115,10 +113,13 @@ export function LinkCard({ link }: { link: Link }) {
               alt=""
               loading="lazy"
               onError={() => setFavFailed(true)}
+              onLoad={(event) => {
+                if (event.currentTarget.naturalWidth === 0) setFavFailed(true);
+              }}
               className="size-3.5 rounded-[4px] [box-shadow:inset_0_0_0_1px_var(--image-outline)]"
             />
           )}
-          <span className="truncate text-xs text-ash">{link.domain}</span>
+          <span className="truncate font-mono text-xs tabular-nums text-mute">{link.domain}</span>
         </div>
       </div>
 
