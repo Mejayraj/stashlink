@@ -33,7 +33,7 @@ export function ToastHost() {
                     a.run();
                     dismiss(t.id);
                   }}
-                  className="h-8 rounded-full px-3 text-sm font-bold text-accent hover:bg-surface-card hover:text-accent-pressed"
+                  className="h-8 rounded-full px-3 text-sm font-medium text-ink hover:bg-surface-card"
                 >
                   {a.label}
                 </button>

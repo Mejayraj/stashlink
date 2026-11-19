@@ -108,7 +108,7 @@ function AuthPage() {
   return (
     <div className="flex min-h-dvh items-center justify-center bg-surface-soft px-4 py-8">
       <div className="w-full max-w-[420px] rounded-[32px] border border-hairline bg-canvas p-8">
-        <h1 className="text-display text-[28px] font-bold text-ink">{APP_NAME}</h1>
+        <h1 className="text-display text-[28px] font-medium text-ink">{APP_NAME}</h1>
 
         <div className="mt-6 flex rounded-full bg-surface-card p-1">
           {(["login", "signup"] as const).map((m) => (
@@ -121,7 +121,7 @@ function AuthPage() {
                 setFormError(null);
               }}
               className={cn(
-                "h-9 flex-1 rounded-full text-sm font-semibold",
+                "h-9 flex-1 rounded-full text-sm font-medium",
                 mode === m ? "bg-canvas text-ink" : "text-mute hover:text-ink",
               )}
             >
@@ -131,7 +131,7 @@ function AuthPage() {
         </div>
 
         <form onSubmit={submit} className="mt-5">
-          <label htmlFor="auth-email" className="text-xs font-semibold text-mute">
+          <label htmlFor="auth-email" className="text-xs font-medium text-mute">
             Email
           </label>
           <div className="field mt-1 flex h-12 items-center px-4">
@@ -150,7 +150,7 @@ function AuthPage() {
           </div>
           {emailError && <p className="mt-2 text-xs text-error">{emailError}</p>}
 
-          <label htmlFor="auth-password" className="mt-4 block text-xs font-semibold text-mute">
+          <label htmlFor="auth-password" className="mt-4 block text-xs font-medium text-mute">
             Password
           </label>
           <div className="field mt-1 flex h-12 items-center pl-4 pr-1">
@@ -180,7 +180,7 @@ function AuthPage() {
           <button
             type="submit"
             disabled={busy}
-            className="mt-5 h-12 w-full rounded-2xl bg-accent text-sm font-bold text-on-accent hover:bg-accent-pressed disabled:opacity-50"
+            className="ink-button mt-5 h-12 w-full rounded-2xl text-sm font-medium disabled:opacity-50"
           >
             {mode === "login" ? "Log in" : "Create account"}
           </button>

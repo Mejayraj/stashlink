@@ -56,7 +56,7 @@ export function MovePopoverHost() {
             className="max-h-[70vh] w-full max-w-xs overflow-y-auto rounded-[32px] border border-hairline bg-canvas p-2"
             onClick={(e) => e.stopPropagation()}
           >
-            <p className="px-3 pb-1 pt-2 text-xs font-semibold text-mute">Move to</p>
+            <p className="px-3 pb-1 pt-2 text-xs font-medium text-mute">Move to</p>
             <MoveRow label="Unsorted" selected={!link.topicId} indented={false} onClick={() => move(null)} />
             {topLevel.map((topic) => (
               <Fragment key={topic.id}>
@@ -104,8 +104,8 @@ function MoveRow({
         indented && "pl-8",
       )}
     >
-      <span className={cn("flex-1 truncate", selected && "font-semibold text-ink")}>{label}</span>
-      {selected && <Check aria-hidden className="size-4 text-accent" />}
+      <span className={cn("flex-1 truncate", selected && "font-medium text-ink")}>{label}</span>
+      {selected && <Check aria-hidden className="size-4 text-ink" />}
     </button>
   );
 }

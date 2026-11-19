@@ -11,10 +11,13 @@ function initialTheme(): Theme {
   return document.documentElement.classList.contains("dark") ? "dark" : "light";
 }
 
-export const useThemeStore = create<{ theme: Theme; toggle: () => void }>((set, get) => ({
+export const useThemeStore = create<{ theme: Theme; toggle: () => void; setTheme: (theme: Theme) => void }>((set, get) => ({
   theme: initialTheme(),
   toggle: () => {
     const next: Theme = get().theme === "dark" ? "light" : "dark";
+    get().setTheme(next);
+  },
+  setTheme: (next) => {
     if (typeof document !== "undefined") {
       document.documentElement.classList.toggle("dark", next === "dark");
       try {

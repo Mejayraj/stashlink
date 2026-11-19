@@ -131,7 +131,7 @@ export function AppFrame({ children }: { children: ReactNode }) {
           >
             <Menu aria-hidden className="size-4" />
           </button>
-          <span className="text-lg font-bold tracking-tight text-ink">{APP_NAME}</span>
+          <span className="text-lg font-medium text-ink">{APP_NAME}</span>
         </div>
         {children}
       </main>
@@ -204,7 +204,7 @@ export function HomeView() {
   }, [query, view, topics, links]);
 
   return (
-    <div className="mx-auto w-full max-w-[1080px] px-3 pb-16 pt-6 md:px-5 md:pt-10">
+    <div className="mx-auto w-full max-w-[1080px] px-6 pb-16 pt-6 md:px-6 md:pt-10">
       <SearchBar ref={searchRef} />
       <AddBar />
       <div className="pt-6">
