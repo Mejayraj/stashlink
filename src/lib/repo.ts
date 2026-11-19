@@ -146,7 +146,7 @@ export const repo = {
       url: input.url,
       title: input.title,
       domain: input.domain,
-      imageUrl: input.imageUrl ?? null,
+      imageUrl: input.imageUrl === undefined ? `https://picsum.photos/seed/${id}/400/260` : input.imageUrl,
       note: input.note ?? "",
       topicId: input.topicId ?? null,
       keywords: input.keywords ?? [],
