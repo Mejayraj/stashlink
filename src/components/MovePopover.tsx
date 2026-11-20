@@ -1,4 +1,4 @@
-import { Fragment, useEffect } from "react";
+import { Fragment, useEffect, type AriaRole, type KeyboardEvent, type Ref } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { Check } from "lucide-react";
 
@@ -84,24 +84,42 @@ export function MovePopoverHost() {
   );
 }
 
-function MoveRow({
+export function MoveRow({
   label,
   selected,
   indented,
   onClick,
+  role,
+  ariaSelected,
+  tabIndex,
+  buttonRef,
+  onKeyDown,
+  className,
 }: {
   label: string;
   selected: boolean;
   indented: boolean;
   onClick: () => void;
+  role?: AriaRole;
+  ariaSelected?: boolean;
+  tabIndex?: number;
+  buttonRef?: Ref<HTMLButtonElement>;
+  onKeyDown?: (event: KeyboardEvent<HTMLButtonElement>) => void;
+  className?: string;
 }) {
   return (
     <button
+      ref={buttonRef}
       type="button"
       onClick={onClick}
+      role={role}
+      aria-selected={ariaSelected}
+      tabIndex={tabIndex}
+      onKeyDown={onKeyDown}
       className={cn(
         "flex h-10 w-full items-center rounded-2xl px-3 text-left text-sm text-body hover:bg-surface-card",
         indented && "pl-8",
+        className,
       )}
     >
       <span className={cn("flex-1 truncate", selected && "font-medium text-ink")}>{label}</span>
