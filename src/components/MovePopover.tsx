@@ -1,4 +1,4 @@
-import { Fragment, useEffect, type AriaRole, type KeyboardEvent, type Ref } from "react";
+import { Fragment, useEffect, type AriaRole, type KeyboardEvent as ReactKeyboardEvent, type Ref } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { Check } from "lucide-react";
 
@@ -104,7 +104,7 @@ export function MoveRow({
   ariaSelected?: boolean;
   tabIndex?: number;
   buttonRef?: Ref<HTMLButtonElement>;
-  onKeyDown?: (event: KeyboardEvent<HTMLButtonElement>) => void;
+  onKeyDown?: (event: ReactKeyboardEvent<HTMLButtonElement>) => void;
   className?: string;
 }) {
   return (
