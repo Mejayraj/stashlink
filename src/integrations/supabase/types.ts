@@ -21,6 +21,7 @@ export type Database = {
           id: string
           image_url: string | null
           keywords: string[]
+          meta_checked: boolean
           note: string
           title: string
           topic_id: string | null
@@ -33,6 +34,7 @@ export type Database = {
           id?: string
           image_url?: string | null
           keywords?: string[]
+          meta_checked?: boolean
           note?: string
           title: string
           topic_id?: string | null
@@ -45,6 +47,7 @@ export type Database = {
           id?: string
           image_url?: string | null
           keywords?: string[]
+          meta_checked?: boolean
           note?: string
           title?: string
           topic_id?: string | null

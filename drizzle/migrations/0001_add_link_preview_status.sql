@@ -1,0 +1,1 @@
+ALTER TABLE public.links ADD COLUMN meta_checked boolean NOT NULL DEFAULT false;
