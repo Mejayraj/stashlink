@@ -1,0 +1,3 @@
+- [ ] Add protected, bounded metadata lookup, persist preview status, and refresh existing links.
+- [ ] Restyle the saved-link grid as compact Pinterest-style pins with an overflow menu.
+- [ ] Run focused tests and verify the main save and refresh flow in the preview.
