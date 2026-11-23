@@ -148,8 +148,9 @@ export function parseLinkMetadata(html: string, pageUrl: string): LinkMetadata {
   const meta: Record<string, string> = {};
   for (const match of html.matchAll(/<meta\b[^>]*>/gi)) {
     const attributes = readAttributes(match[0]);
-    const key = attributes.property?.toLowerCase() ?? attributes.name?.toLowerCase();
-    if (key && attributes.content) meta[key] = attributes.content;
+    const key = attributes["property"]?.toLowerCase() ?? attributes["name"]?.toLowerCase();
+    const content = attributes["content"];
+    if (key && content) meta[key] = content;
   }
 
   const titleTag = /<title\b[^>]*>([\s\S]*?)<\/title\s*>/i.exec(html)?.[1];
